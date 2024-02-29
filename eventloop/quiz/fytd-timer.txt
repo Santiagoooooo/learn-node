@@ -1,1 +1,16 @@
 - In eventloop/timer.js, what will be the order of execution? Briefly explain the order of execution w.r.t the event loop phases.
+
+Order of Execution:
+foo (with 2 as argument)
+foo
+baz
+baz
+2 : bar
+1 : bar
+
+Explanation:
+When foo(2) is called, it prints foo immediately.
+setTimeout queues bar(2) to run after the minimum timeout, but it has to wait until the call stack is clear and the timer phase of the event loop is reached.
+baz is called next, printing baz.
+The process repeats with foo(1), printing foo and then baz again.
+Since both setTimeout calls are set with a delay of 0 ms, they're added to the timer queue and executed in the order they were queued once the event loop reaches the timer phase and the call stack is empty. Hence, 2 : bar and then 1 : bar are printed.

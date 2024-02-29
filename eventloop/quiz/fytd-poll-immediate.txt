@@ -1,2 +1,18 @@
 - Explain the order of execution in terms of the event loop for eventloop/immediate.js.
 - Will the order of execution change if timeout is changed to 0? Why or why not?
+
+1. fs.readFile operation starts: This is an asynchronous operation. Node.js proceeds to execute the next lines of code available outside of callbacks while this operation is pending.
+
+2. File Read Callback Executes: Once the file read operation completes, its callback function is executed. This happens regardless of whether there's an error reading the file or not.
+
+a. The script first enters a 10ms blocking loop. This is a synchronous operation that blocks the event loop.
+b. It then checks for an error. If there's none, it prints the data read from the file.
+c. A setTimeout with a delay of 5ms is set. This schedules a timer callback to be executed after the delay.
+d. setImmediate is called, scheduling a callback to run in the check phase of the next tick of the event loop.
+
+3. Order of Callback Execution:
+
+The setImmediate callback is likely to run first because it is scheduled to run at the end of the current phase of the event loop cycle.
+The setTimeout callback is scheduled to run after a minimum delay of 5ms. However, due to the time taken by previous operations (including the blocking loop), the event loop might be able to execute the setTimeout callback almost immediately after the setImmediate callback, depending on the execution context and any possible delay introduced by the event loop processing.
+If the timeout is changed to 0:
+Changing the setTimeout delay to 0 would not fundamentally change the order of execution. The setTimeout callback is still subject to the event loop's timing and operational delays. Even with a 0ms delay, it's queued to run in the timers phase, which happens after I/O callbacks (like the fs.readFile callback). However, because setImmediate is specifically designed to execute after the current poll phase and before timers, the setImmediate callback would still execute before the setTimeout callback, regardless of the setTimeout delay being 0ms.

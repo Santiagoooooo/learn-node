@@ -1,8 +1,6 @@
-#! /opt/homebrew/bin/node
 const http = require('http')
 const args = process.argv;
-const getConfig = require('../config');
-
+const getConfig = require('./config');
 
 const config = getConfig(args);
 const hostname = config.hostname;
@@ -15,11 +13,13 @@ const server = http.createServer((req, res) => {
         res.end('Welcome to home!');
     }
     else {
-        res.statusCode = 404;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Invalid request due to bad URL');
+        // Change starts here
+        res.statusCode = 200; // Ensure a successful response
+        res.setHeader('Content-Type', 'application/json'); // Set content type to JSON
+        // Send back JSON object with hostname and port
+        res.end(JSON.stringify({ hostname: hostname, port: port }));
+        // Change ends here
     }
-    
 })
 
 server.listen(port, hostname, () => {

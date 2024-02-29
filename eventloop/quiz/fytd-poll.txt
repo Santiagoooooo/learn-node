@@ -1,1 +1,11 @@
 - In eventloop/poll.js, what will be the order of execution? Briefly explain the order of execution w.r.t the event loop phases.
+
+Order of Execution:
+1. foo
+2. done
+3. Data: ... or Read Error
+Explanation:
+The script initiates an asynchronous file read operation (someAsyncOperation) which is offloaded to the system kernel (if possible). This operation is non-blocking, allowing the event loop to continue running.
+While the file is being read, the event loop proceeds, and foo is called next, printing foo.
+The event loop then encounters and executes the console.log('done') statement, printing done.
+The callback for fs.readFile in someAsyncOperation is executed once the file has been read or an error occurs, but only after the poll phase of the event loop can check for it. Since this happens asynchronously and is dependent on the file system's response time, Data: ... or Read Error is logged after done. This demonstrates the non-blocking nature of Node.js's I/O operations, where the event loop continues with the next tasks without waiting for the current one to complete.
